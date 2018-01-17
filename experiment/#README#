@@ -1,0 +1,147 @@
+
+--------------------
+------ Usage -------
+--------------------
+
+First run run.sh.  Then run process.sh.  Then run analysis.
+  
+--------------------
+------ Files -------
+--------------------
+
+all code should be run from the present directory. the directory above
+should be writeable.
+
+keys.py : a file with the name "keys.py" and the following form should
+          be placed in a directory on python's path or in the
+          directory above:
+def pub_key():
+    return '[public key]'
+def priv_key():
+    return '[private key]'
+
+exchange.py : the python exchange API should also be replaced in the
+              directory above
+
+-- control files --
+
+run.sh : run the experiment
+check.sh : check which python processes are running
+process.sh : process data from experiment
+    
+-- experiment files --
+
+main.py : main script for running experiment
+experiment.py : code for Experiment objects for each coin
+utils.py : helper functions for experiments
+
+-- other files --
+
+README : this file
+license : license file
+test.py : script for testing data integrity (run after process.sh)
+
+-------------------
+------ Data -------
+-------------------
+
+transaction times and amounts are randomized.  we wait at least an
+hour before transacting again after an initial transaction, but then
+add a random number of seconds before attempting to transact again.
+
+---------------------
+- interventions.csv -
+---------------------
+
+the interventions file holds a record of each coin we have either
+transacted on or simulated transacting on.  each line is an attempted
+or simulated order.
+
+columns are left empty if the data could not be found.  in particular,
+for simulated buys this_trade will never be found. 
+
+columns:
+coin_name,coin_id,intervention_num,buy_state,sell_state,buy_eats_block,sell_eats_block,condition,success,start_time,end_time,wait,last_trade_type,last_trade_id,last_trade_time,last_trade_quantity,last_trade_price,last_trade_total,this_order_id,this_trade_id,this_trade_time,this_trade_quantity,this_trade_price,this_trade_total
+
+"coin_id" gives the market id of the coin in the BTC market
+
+"intervention_num" gives the ID of this event. each time we
+successfully intervene, this number increases by one
+
+"buy_state" indicates whether buying will move the price up or down,
+or keep it the same
+
+"sell_state" indicates whether selling will move the price up or down,
+or keep it the same
+
+"buy_eats_block" indicates whether the BTC amount of the given buy
+action is greater than or equal to the lowest sell block total BTC
+amount
+
+"sell_eats_block" indicates whether the BTC amount of the given sell
+action is greater than or equal to the highest buy block total BTC
+amount
+    
+"condition" indicates whether this purchase is a buy treatment, a sell
+treatment, or a control
+
+"success" indicates whether the intervention was executed successfully
+
+"start_time" gives the start time of the intervention
+
+"end_time" gives the end time of the intervention
+
+"wait" gives the minimum wait time until the next intervention
+
+"last_trade" columns give the information about the the last observed
+trade before making the purchase order
+
+"this_order_id" give the order number associated with the buy
+
+"this_trade" columns give the information about the trade, as it was
+actually executed
+
+--------------
+- checks.csv -
+--------------
+
+the checks file holds a record of each observation of the prices of a
+coin we have made surrounding an intervention.  when we intervene, we
+record the state immediately before we bought, then we record 15
+minutes, 30 minutes, and 60 minutes after we buy.
+
+columns are left empty if the data could not be found.  in the first
+row for a particular intervention, data should only fail to be found
+if we don't get a reply from our order.  in the second, third and
+fourth, checks, the last trade will be empty if the last trade we
+observe in this check is the same as the previous check's last trade,
+or if it is our trade.  that is, if there has been no activity since
+our last trade, or no activity since the last trade we observe, then
+we don't record a last trade.
+
+columns:
+coin_name,coin_id,intervention_num,monitor_num,buy_state,sell_state,buy_eats_block,sell_eats_block,condition,success,time,volume_15,volume_30,volume_60,total_15,total_30,total_60,volume,total,buy_volume_15,buy_volume_30,buy_volume_60,buy_total_15,buy_total_30,buy_total_60,buy_volume,buy_total,sell_volume_15,sell_volume_30,sell_volume_60,sell_total_15,sell_total_30,sell_total_60,sell_volume,sell_total,last_trade_type,last_trade_id,last_trade_time,last_trade_quantity,last_trade_price,last_trade_total,highest_buy_price,highest_buy_total,highest_buy_quantity,lowest_sell_price,lowest_sell_total,lowest_sell_quantity
+
+(also see interventions.csv descriptions)
+  
+"monitor_num" gives which monitor event this is 0,1,2, or 3
+
+"time" column gives the time that this observation was recorded
+
+"YY_volume_XX" gives the coin volume in the last XX minutes (undefined
+for monitor_num 1,2,3) for the transaction type YY
+
+"YY_total_XX" gives the BTC volume in the last XX minutes (undefined for
+monitor_num 1,2,3) for the transaction type YY
+
+"YY_volume" column gives the total coin volume on this coin since the
+intervention (undefined for monitor_num 0) for the transaction type YY
+
+"YY_total" column gives the total BTC volume on this coin since the
+intervention (undefined for monitor_num 0) for the transaction type YY
+  
+"highest_buy_price" gives the highest buy price in the order book at this time
+"highest_buy_total" gives the total BTC in the highest buy block
+"lowest_sell_price" gives the lowest sell price in the order book at this time
+"lowest_sell_total" gives the total BTC in the lowest sell block
+"quantity" gives the total number of coins at that price

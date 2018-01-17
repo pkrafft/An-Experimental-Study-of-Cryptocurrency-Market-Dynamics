@@ -1,0 +1,26 @@
+-------
+README
+-------
+
+Code for:
+
+Peter Krafft, Nicolás Della Penna, Alex Pentland. (2018). An
+Experimental Study of Cryptocurrency Market Dynamics. ACM CHI
+Conference on Human Factors in Computing Systems (CHI).
+
+./experiment/ contains experiment code
+./analysis/ contains analysis code
+
+Main analysis is in:
+
+analysis/CHI-2018-main.ipynb
+
+Supplementary analysis is in:
+
+CHI-2018-supplement.ipynb
+
+Data columns are described in experiment/README
+
+--
+
+To run analysis, first unzip data files in ./analysis/
